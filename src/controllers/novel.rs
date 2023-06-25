@@ -1,6 +1,7 @@
 use actix_web::{error, HttpResponse, Responder, web};
 use diesel::prelude::*;
 use diesel::query_dsl::QueryDsl;
+use validator::Validate;
 
 use crate::beans::pageable::Pageable;
 use crate::db::DbPool;
