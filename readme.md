@@ -5,3 +5,6 @@ Using diesel with MariaDB and Actix Web
 Data model:
 
 ![schema](./doc/db_schema.jpg)
+
+## Install of diesel cli for MySQL/MariaDB (linux)
+

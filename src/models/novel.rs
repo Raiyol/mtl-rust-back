@@ -4,10 +4,10 @@ use serde::{Deserialize, Serialize};
 
 use crate::schema::schema::novel;
 
-#[derive(QueryableByName, Serialize, Deserialize)]
+#[derive(Queryable, Serialize, Deserialize, Selectable)]
 #[diesel(table_name = novel)]
 pub struct Novel {
-    pub id: i64,
+    pub id: u32,
     pub url: String,
     pub name: String,
     pub cn_name: String,
@@ -15,5 +15,5 @@ pub struct Novel {
     pub summary: Option<String>,
     pub img: Option<String>,
     pub date: Option<NaiveDateTime>,
-    pub completed: u8,
+    pub completed: i8,
 }
