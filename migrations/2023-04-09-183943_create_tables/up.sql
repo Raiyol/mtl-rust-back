@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS novel
     img       VARCHAR(50) DEFAULT NULL,
     date      DATETIME    DEFAULT UTC_TIMESTAMP,
     completed TINYINT                      NOT NULL,
-    INDEX (url)
+    UNIQUE INDEX (url)
 ) DEFAULT CHARSET = utf8;
 CREATE TABLE IF NOT EXISTS genre
 (

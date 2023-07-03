@@ -5,6 +5,7 @@ mod models;
 mod schema;
 mod db;
 mod controllers;
+mod services;
 mod beans;
 
 #[get("/")]
@@ -22,7 +23,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .service(hello)
             .service(
-                web::scope("/novel")
+                web::scope("/novels")
                     .configure(controllers::novel::init_routes)
             )
     })

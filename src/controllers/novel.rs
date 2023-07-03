@@ -1,30 +1,40 @@
 use actix_web::{error, HttpResponse, Responder, web};
-use diesel::prelude::*;
-use diesel::query_dsl::QueryDsl;
-use actix_web_validator::Json;
+use actix_web_validator::Query;
 
 use crate::beans::pageable::Pageable;
 use crate::db::DbPool;
-use crate::models::novel::Novel;
+use crate::services::novel_service;
 
 pub fn init_routes(cfg: &mut web::ServiceConfig) {
-    cfg.service(
-        web::resource("/")
-            .route(web::post().to(get_novels))
-    );
+    cfg
+        .service(
+            web::resource("")
+                .route(web::get().to(get_novels))
+        )
+        .service(
+            web::resource("/{novel_url}")
+                .route(web::get().to(get_novel_by_url))
+        );
 }
 
-async fn get_novels(pool: web::Data<DbPool>, pageable: Json<Pageable>) -> actix_web::Result<impl Responder> {
-    use crate::schema::schema::novel::dsl::*;
+async fn get_novels(pool: web::Data<DbPool>, pageable: Query<Pageable>) -> actix_web::Result<impl Responder> {
     let novels = web::block(move || {
         let mut conn = pool.get().expect("Error getting connection to DB");
-        novel
-            .limit(pageable.page_size)
-            .offset(pageable.page_number * pageable.page_size)
-            .load::<Novel>(&mut conn)
+        novel_service::find_all_novel(&mut *conn, pageable.into_inner())
     }).await?
         // map diesel query errors to a 500 error response
         .map_err(error::ErrorInternalServerError);
 
     Ok(HttpResponse::Ok().json(novels.expect("There should be novels in db")))
+}
+
+async fn get_novel_by_url(pool: web::Data<DbPool>, novel_url: web::Path<String>) -> actix_web::Result<impl Responder> {
+    let nov = web::block(move || {
+        let mut conn = pool.get().expect("Error getting connection to DB");
+        novel_service::find_novel_by_url(&mut *conn, novel_url.into_inner())
+    }).await?
+        // map diesel query errors to a 500 error response
+        .map_err(error::ErrorInternalServerError);
+
+    Ok(HttpResponse::Ok().json(nov.expect("Novel not found")))
 }
