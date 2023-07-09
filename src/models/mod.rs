@@ -1,5 +1,5 @@
 // pub mod bookmark;
-// pub mod chapter;
+pub mod chapter;
 // pub mod comment;
 // pub mod genre;
 pub mod novel;

@@ -1,18 +1,32 @@
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use diesel::sql_types::Datetime;
+use serde::{Deserialize, Serialize};
 
-use super::super::schema::schema::chapter;
+use crate::schema::schema::chapter;
+use crate::models::novel::Novel;
 
-#[derive(Queryable, Identifiable, Selectable, Debug)]
+#[derive(Queryable, Identifiable, Serialize, Deserialize, Selectable, Associations, Debug, PartialEq)]
+#[diesel(belongs_to(Novel, foreign_key = id_novel))]
 #[diesel(table_name = chapter)]
-#[diesel(belongs_to(Novel))]
 pub struct Chapter {
-    pub id: i32,
-    pub id_novel: i32,
-    pub number: i32,
-    pub date: Datetime,
-    pub title_en: String,
-    pub title_cn: String,
-    pub content: String,
-    pub dict: String
+    pub id: u32,
+    pub id_novel: u32,
+    pub number: u32,
+    pub date: Option<NaiveDateTime>,
+    pub title_en: Option<String>,
+    pub title_cn: Option<String>,
+    pub content: Option<String>,
+    pub dict: Option<String>
+}
+
+#[derive(Queryable, Identifiable, Serialize, Deserialize, Selectable, Associations, Debug, PartialEq)]
+#[diesel(belongs_to(Novel, foreign_key = id_novel))]
+#[diesel(table_name = chapter)]
+pub struct ChapterInfo {
+    pub id: u32,
+    pub id_novel: u32,
+    pub number: u32,
+    pub date: Option<NaiveDateTime>,
+    pub title_en: Option<String>,
+    pub title_cn: Option<String>
 }
