@@ -1,10 +1,16 @@
 use diesel::prelude::*;
+use serde::{Deserialize, Serialize};
 
-#[derive(Queryable)]
+use crate::models::novel::Novel;
+use crate::schema::schema::novel_genre;
+use crate::models::genre::Genre;
+
+#[derive(Identifiable, Selectable, Serialize, Deserialize, Queryable, Associations, Debug, Clone)]
+#[diesel(belongs_to(Novel, foreign_key = id_novel))]
+#[diesel(belongs_to(Genre, foreign_key = id_genre))]
 #[diesel(table_name = novel_genre)]
-#[diesel(belongs_to(Novel))]
-#[diesel(belongs_to(Genre))]
+#[diesel(primary_key(id_novel, id_genre))]
 pub struct NovelGenre {
-    pub id_novel: i32,
-    pub id_genre: i32
+    pub id_novel: u32,
+    pub id_genre: u32,
 }

@@ -13,6 +13,10 @@ pub fn init_novels_routes(cfg: &mut web::ServiceConfig) {
                 .route(web::get().to(get_novels))
         )
         .service(
+            web::resource("/random")
+                .route(web::get().to(get_random_novels))
+        )
+        .service(
             web::scope("/{novel_url}/chapters")
                 .configure(init_chapters_routes)
         )
@@ -37,6 +41,17 @@ async fn get_novel_by_url(pool: web::Data<DbPool>, novel_url: web::Path<String>)
     let nov = web::block(move || {
         let mut conn = pool.get().expect("Error getting connection to DB");
         novel_service::find_novel_by_url_with_chapters_info(&mut *conn, novel_url.into_inner())
+    }).await?
+        // map diesel query errors to a 500 error response
+        .map_err(error::ErrorInternalServerError);
+
+    Ok(HttpResponse::Ok().json(nov.expect("Novel not found")))
+}
+
+async fn get_random_novels(pool: web::Data<DbPool>) -> actix_web::Result<impl Responder> {
+    let nov = web::block(move || {
+        let mut conn = pool.get().expect("Error getting connection to DB");
+        novel_service::get_random_novels(&mut *conn)
     }).await?
         // map diesel query errors to a 500 error response
         .map_err(error::ErrorInternalServerError);

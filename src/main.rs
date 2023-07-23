@@ -23,11 +23,11 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(pool.clone()))
             .service(hello)
             .service(
-                web::scope("/novels")
+                web::scope("/api/novels")
                     .configure(controllers::novel::init_novels_routes)
             )
     })
-        .bind(("127.0.0.1", 8080))?
+        .bind(("127.0.0.1", 5000))?
         .run()
         .await
 }

@@ -2,6 +2,7 @@ use chrono::NaiveDateTime;
 use diesel::prelude::*;
 use serde::{Deserialize, Serialize};
 use crate::models::chapter::{ChapterInfo};
+use crate::models::genre::Genre;
 
 use crate::schema::schema::novel;
 
@@ -19,10 +20,10 @@ pub struct Novel {
     pub completed: i8,
 }
 
-
 #[derive(Serialize, Deserialize)]
 pub struct NovelWithShortChapters {
     #[serde(flatten)]
     pub novel: Novel,
+    pub genres: Vec<Genre>,
     pub chapters: Vec<ChapterInfo>,
 }
