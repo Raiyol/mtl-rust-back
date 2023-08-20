@@ -1,4 +1,4 @@
-use actix_web::{App, get, HttpResponse, HttpServer, Responder, web};
+use actix_web::{App, get, HttpResponse, HttpServer, Responder, web, middleware::Logger};
 use dotenvy::dotenv;
 
 mod models;
@@ -16,6 +16,7 @@ async fn hello() -> impl Responder {
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
+    env_logger::init_from_env(env_logger::Env::new().default_filter_or("info"));
     let pool = db::init_pool();
 
     HttpServer::new(move || {
@@ -26,6 +27,7 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api/novels")
                     .configure(controllers::novel::init_novels_routes)
             )
+            .wrap(Logger::default())
     })
         .bind(("127.0.0.1", 5000))?
         .run()

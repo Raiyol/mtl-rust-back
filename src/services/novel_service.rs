@@ -1,9 +1,10 @@
 use diesel::prelude::*;
 
+use crate::beans::novel_with_short_chapters::NovelWithShortChapters;
 use crate::beans::pageable::Pageable;
 use crate::models::chapter::ChapterInfo;
 use crate::models::genre::Genre;
-use crate::models::novel::{Novel, NovelWithShortChapters};
+use crate::models::novel::Novel;
 use crate::models::novel_genre::NovelGenre;
 use crate::schema::schema::*;
 
@@ -26,15 +27,6 @@ pub fn get_random_novels(conn: &mut MysqlConnection) -> Result<Vec<Novel>, diese
         .load::<Novel>(conn)
 }
 
-pub fn find_novel_by_url(conn: &mut MysqlConnection, novel_url: String) -> Result<Option<Novel>, DbError> {
-    let res = novel::table
-        .filter(novel::url.eq(novel_url))
-        .first::<Novel>(conn)
-        .optional()?;
-
-    Ok(res)
-}
-
 pub fn find_novel_by_url_with_chapters_info(conn: &mut MysqlConnection, novel_url: String) -> Result<NovelWithShortChapters, DbError> {
     let nov = novel::table
         .filter(novel::url.eq(novel_url))
@@ -50,5 +42,26 @@ pub fn find_novel_by_url_with_chapters_info(conn: &mut MysqlConnection, novel_ur
         .select(Genre::as_select())
         .load(conn)?;
 
-    return Ok(NovelWithShortChapters{novel: nov, chapters, genres});
+    return Ok(NovelWithShortChapters { novel: nov, chapters, genres });
+}
+
+pub fn search(conn: &mut MysqlConnection, search: Option<String>) -> Result<Vec<Novel>, diesel::result::Error> {
+    let mut nov = novel::table.into_boxed();
+
+    if search.is_some() {
+        let search_text = search.expect("Search text is null");
+        nov = nov.filter(novel::name.like(format!("%{}%", &search_text)))
+            .or_filter(novel::cn_name.like(format!("%{}%", &search_text)));
+    }
+
+    nov.select(Novel::as_select())
+        .load::<Novel>(conn)
+}
+
+pub fn get_recent_chapters(conn: &mut MysqlConnection) -> Result<Vec<ChapterInfo>, diesel::result::Error> {
+    chapter::table
+        .select(ChapterInfo::as_select())
+        .limit(20)
+        .order(chapter::date)
+        .load::<ChapterInfo>(conn)
 }

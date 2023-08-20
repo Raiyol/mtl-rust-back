@@ -2,6 +2,7 @@ use actix_web::{error, HttpResponse, Responder, web};
 use actix_web_validator::Query;
 
 use crate::beans::pageable::Pageable;
+use crate::beans::search_query::SearchQuery;
 use crate::db::DbPool;
 use crate::services::novel_service;
 use crate::controllers::chapter::init_chapters_routes;
@@ -17,8 +18,16 @@ pub fn init_novels_routes(cfg: &mut web::ServiceConfig) {
                 .route(web::get().to(get_random_novels))
         )
         .service(
+            web::resource("/search")
+                .route(web::get().to(search_novel))
+        )
+        .service(
             web::scope("/{novel_url}/chapters")
                 .configure(init_chapters_routes)
+        )
+        .service(
+            web::resource("/chapters/recent")
+                .route(web::get().to(get_recent_chapters))
         )
         .service(
             web::resource("/{novel_url}")
@@ -57,4 +66,26 @@ async fn get_random_novels(pool: web::Data<DbPool>) -> actix_web::Result<impl Re
         .map_err(error::ErrorInternalServerError);
 
     Ok(HttpResponse::Ok().json(nov.expect("Novel not found")))
+}
+
+async fn search_novel(pool: web::Data<DbPool>, search: Query<SearchQuery>) -> actix_web::Result<impl Responder> {
+    let nov = web::block(move || {
+        let mut conn = pool.get().expect("Error getting connection to DB");
+        novel_service::search(&mut *conn, search.into_inner().search)
+    }).await?
+        // map diesel query errors to a 500 error response
+        .map_err(error::ErrorInternalServerError);
+
+    Ok(HttpResponse::Ok().json(nov.expect("Novel not found")))
+}
+
+async fn get_recent_chapters(pool: web::Data<DbPool>) -> actix_web::Result<impl Responder> {
+    let chap = web::block(move || {
+        let mut conn = pool.get().expect("Error getting connection to DB");
+        novel_service::get_recent_chapters(&mut *conn)
+    }).await?
+        // map diesel query errors to a 500 error response
+        .map_err(error::ErrorInternalServerError);
+
+    Ok(HttpResponse::Ok().json(chap.expect("Chapters not found")))
 }
