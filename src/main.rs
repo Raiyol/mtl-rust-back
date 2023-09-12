@@ -27,6 +27,10 @@ async fn main() -> std::io::Result<()> {
                 web::scope("/api/novels")
                     .configure(controllers::novel::init_novels_routes)
             )
+            .service(
+                web::scope("/api/chapters")
+                    .configure(controllers::chapter::init_chapters_routes)
+            )
             .wrap(Logger::default())
     })
         .bind(("127.0.0.1", 5000))?
