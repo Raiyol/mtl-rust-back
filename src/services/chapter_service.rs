@@ -1,5 +1,6 @@
 use diesel::prelude::*;
 
+use crate::beans::chapter_lightbean::ChapterLightBean;
 use crate::beans::recent_chapter::RecentChapter;
 use crate::models::chapter::{Chapter, ChapterInfo};
 use crate::models::novel::Novel;
@@ -11,7 +12,7 @@ pub fn get_chapter_by_id(
     conn: &mut MysqlConnection,
     novel_url: String,
     number: u32,
-) -> Result<Option<Chapter>, DbError> {
+) -> Result<Option<ChapterLightBean>, DbError> {
     let res = chapter::table
         .inner_join(novel::table)
         .filter(novel::url.eq(novel_url))
@@ -20,7 +21,7 @@ pub fn get_chapter_by_id(
         .first::<Chapter>(conn)
         .optional()?;
 
-    Ok(res)
+    Ok(res.map(|chapter| ChapterLightBean::map(chapter)))
 }
 
 pub fn get_recent_chapters(

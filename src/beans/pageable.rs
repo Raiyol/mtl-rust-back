@@ -2,6 +2,7 @@ use serde::Deserialize;
 use validator::Validate;
 
 #[derive(Deserialize, Validate)]
+#[serde(rename_all = "camelCase")]
 pub struct Pageable {
     #[validate(range(min = 0, message = "Page number must be positive"))]
     pub page_number: i64,

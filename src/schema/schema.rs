@@ -97,6 +97,8 @@ diesel::joinable!(novel_genre -> genre (id_genre));
 diesel::joinable!(novel_genre -> novel (id_novel));
 diesel::joinable!(review -> novel (id_novel));
 diesel::joinable!(review -> user (id_user));
+diesel::joinable!(comment -> chapter (id_chapter));
+diesel::joinable!(comment -> user (id_user));
 diesel::joinable!(review_user_liked -> review (id_review));
 diesel::joinable!(review_user_liked -> user (id_user));
 

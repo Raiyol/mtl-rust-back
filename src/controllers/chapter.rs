@@ -1,4 +1,5 @@
 use actix_web::{error, HttpResponse, Responder, web};
+use crate::controllers::comment::init_chapters_comment_routes;
 
 use crate::db::DbPool;
 use crate::services::chapter_service;
@@ -16,7 +17,8 @@ pub fn init_chapters_routes(cfg: &mut web::ServiceConfig) {
         .service(
             web::resource("/recent")
                 .route(web::get().to(get_recent_chapters))
-        );
+        )
+        .service(web::scope("/{id_chapter}/comments").configure(init_chapters_comment_routes));
 }
 
 async fn get_chapters_short(pool: web::Data<DbPool>, path: web::Path<(String, u32)>) -> actix_web::Result<impl Responder> {

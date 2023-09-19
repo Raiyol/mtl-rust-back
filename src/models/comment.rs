@@ -1,16 +1,17 @@
+use chrono::NaiveDateTime;
 use diesel::prelude::*;
-use diesel::sql_types::Datetime;
+use serde::{Deserialize, Serialize};
 
-use super::super::schema::schema::comment;
+use crate::schema::schema::comment;
 
-#[derive(Queryable, Identifiable, Selectable, Debug)]
+#[derive(Queryable, Identifiable, Serialize, Deserialize, Selectable, Debug, PartialEq)]
 #[diesel(table_name = comment)]
-#[diesel(belongs_to(Chapter))]
-#[diesel(belongs_to(User))]
+#[diesel(belongs_to(Chapter, foreign_key = id_chapter))]
+#[diesel(belongs_to(User, foreign_key = id_user))]
 pub struct Comment {
-    pub id: i32,
-    pub id_chapter: i32,
-    pub id_user: i32,
+    pub id: u32,
+    pub id_chapter: u32,
+    pub id_user: u32,
     pub text: String,
-    pub date: Datetime
+    pub date: Option<NaiveDateTime>,
 }
