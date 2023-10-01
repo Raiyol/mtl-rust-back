@@ -5,6 +5,7 @@ use crate::beans::recent_chapter::RecentChapter;
 use crate::models::chapter::{Chapter, ChapterInfo};
 use crate::models::novel::Novel;
 use crate::schema::schema::*;
+use diesel::dsl::*;
 
 type DbError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -17,11 +18,24 @@ pub fn get_chapter_by_id(
         .inner_join(novel::table)
         .filter(novel::url.eq(novel_url))
         .filter(chapter::number.eq(number))
-        .select(Chapter::as_select())
-        .first::<Chapter>(conn)
+        .select((Chapter::as_select(), Novel::as_select()))
+        .first::<(Chapter, Novel)>(conn)
         .optional()?;
 
-    Ok(res.map(|chapter| ChapterLightBean::map(chapter)))
+    let test: (Option<u32>, Option<u32>) = chapter::dsl::chapter
+        .select((min(chapter::number), max(chapter::number)))
+        .filter(chapter::id_novel.eq(1))
+        .first::<(Option<u32>, Option<u32>)>(conn)
+        .expect("Chapters/Novel should exist");
+
+    Ok(res.map(|(chapter, novel)| {
+        ChapterLightBean::map(
+            chapter,
+            novel,
+            test.0.expect("Novel should exist"),
+            test.1.expect("Novel should exist"),
+        )
+    }))
 }
 
 pub fn get_recent_chapters(

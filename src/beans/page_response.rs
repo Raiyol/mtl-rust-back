@@ -17,7 +17,11 @@ impl<T> PageResponse<T> {
         PageResponse {
             results: content,
             total,
-            page_total: pageable.page_size / total,
+            page_total: if total > 0 {
+                pageable.page_size / total
+            } else {
+                total
+            },
             has_next: pageable.page_number * pageable.page_size <= total,
             has_previous: pageable.page_number > 0,
         }
