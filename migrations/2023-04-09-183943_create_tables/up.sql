@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS novel
     author    VARCHAR(20) DEFAULT NULL,
     summary   TEXT,
     img       VARCHAR(50) DEFAULT NULL,
-    date      DATETIME    DEFAULT UTC_TIMESTAMP,
+    date      DATETIME    DEFAULT NOW(),
     completed TINYINT                      NOT NULL,
     UNIQUE INDEX (url)
 ) DEFAULT CHARSET = utf8;
@@ -30,7 +30,7 @@ CREATE TABLE IF NOT EXISTS chapter
     id       int(20) UNSIGNED PRIMARY KEY NOT NULL AUTO_INCREMENT,
     id_novel int(20) UNSIGNED             NOT NULL,
     number   int(10) UNSIGNED             NOT NULL,
-    date     datetime     DEFAULT UTC_TIMESTAMP,
+    date     datetime     DEFAULT NOW(),
     title_en varchar(255) DEFAULT NULL,
     title_cn varchar(255) DEFAULT NULL,
     content  json         DEFAULT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS user
     confirmed tinyint                      NOT NULL,
     role      varchar(5),
     pfp       varchar(32)                  NOT NULL,
-    date      datetime DEFAULT UTC_TIMESTAMP
+    date      datetime DEFAULT NOW()
 ) DEFAULT CHARSET = utf8;
 CREATE TABLE IF NOT EXISTS bookmark
 (
@@ -65,7 +65,7 @@ CREATE TABLE IF NOT EXISTS review
     id_user  int(20) UNSIGNED             NOT NULL,
     rate     int(1)   DEFAULT NULL,
     `text`   text     DEFAULT NULL,
-    date     datetime DEFAULT UTC_TIMESTAMP,
+    date     datetime DEFAULT NOW(),
     FOREIGN KEY (id_user) REFERENCES user (id),
     FOREIGN KEY (id_novel) REFERENCES novel (id),
     UNIQUE KEY (id_user, id_novel)
@@ -84,5 +84,5 @@ CREATE TABLE IF NOT EXISTS comment
     id_chapter int(20) UNSIGNED             NOT NULL REFERENCES chapter (id),
     id_user    int(20) UNSIGNED             NOT NULL REFERENCES user (id),
     `text`     varchar(2048)                NOT NULL,
-    date       datetime DEFAULT UTC_TIMESTAMP
+    date       datetime DEFAULT NOW()
 ) DEFAULT CHARSET = utf8;

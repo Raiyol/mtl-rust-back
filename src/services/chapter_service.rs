@@ -22,20 +22,14 @@ pub fn get_chapter_by_id(
         .first::<(Chapter, Novel)>(conn)
         .optional()?;
 
-    let test: (Option<u32>, Option<u32>) = chapter::dsl::chapter
+    let first_last: (Option<u32>, Option<u32>) = chapter::dsl::chapter
         .select((min(chapter::number), max(chapter::number)))
         .filter(chapter::id_novel.eq(1))
         .first::<(Option<u32>, Option<u32>)>(conn)
         .expect("Chapters/Novel should exist");
 
-    Ok(res.map(|(chapter, novel)| {
-        ChapterLightBean::map(
-            chapter,
-            novel,
-            test.0.expect("Novel should exist"),
-            test.1.expect("Novel should exist"),
-        )
-    }))
+    Ok(res
+        .map(|(chapter, novel)| ChapterLightBean::map(chapter, novel, first_last.0, first_last.1)))
 }
 
 pub fn get_recent_chapters(

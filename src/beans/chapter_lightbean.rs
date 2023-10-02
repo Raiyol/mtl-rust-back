@@ -14,16 +14,16 @@ pub struct ChapterLightBean {
     pub title_cn: Option<String>,
     pub content: Option<Value>,
     pub dict: Option<Value>,
-    pub first_chapter: u32,
-    pub last_chapter: u32,
+    pub first_chapter: Option<u32>,
+    pub last_chapter: Option<u32>,
 }
 
 impl ChapterLightBean {
     pub fn map(
         chapter: Chapter,
         novel: Novel,
-        first_chapter: u32,
-        last_chapter: u32,
+        first_chapter: Option<u32>,
+        last_chapter: Option<u32>,
     ) -> ChapterLightBean {
         ChapterLightBean {
             id: chapter.id,
