@@ -23,3 +23,5 @@ jobs:
     - run: diesel migration run
     - name: Build release
       run: cargo build --release --verbose
+    - name: Restart srvice
+      run: sudo systemctl restart broall_rust_back.service
